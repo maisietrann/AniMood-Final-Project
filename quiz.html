@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Quiz - AniMood</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">AniMood</h1>
+  </header>
+
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="quiz.html">Mood Quiz</a>
+    <a href="search.html">Search</a>
+    <a href="watchlist.html">Watchlist</a>
+  </nav>
+
+  <main>
+    <h2>Take the Mood Quiz</h2>
+    <form id="quizForm">
+      <label>1. What's your current vibe?</label><br />
+      <select name="vibe">
+        <option value="4">I want to laugh (Comedy)</option>
+        <option value="22">I need to cry (Drama)</option>
+        <option value="8">I'm hyped up (Action)</option>
+        <option value="36">Just chilling (Slice of Life)</option>
+      </select><br /><br />
+
+      <label>2. Preferred pace?</label><br />
+      <select name="pace">
+        <option value="8">Fast-paced thrills</option>
+        <option value="22">Slow and emotional</option>
+        <option value="36">Relaxing and cozy</option>
+        <option value="4">Chaotic and funny</option>
+      </select><br /><br />
+
+      <label>3. Favorite type of setting?</label><br />
+      <select name="setting">
+        <option value="1">Fantasy world (Adventure)</option>
+        <option value="14">Real-life emotions (Drama)</option>
+        <option value="10">Modern/School (Slice of Life, Comedy)</option>
+        <option value="24">Futuristic/Techy (Sci-Fi)</option>
+      </select><br /><br />
+
+      <button type="submit">Show Recommendations</button>
+    </form>
+
+    <div id="quizResults" class="grid"></div>
+  </main>
+
+  <!-- ✅ Supabase Quiz Script -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://yxmfalevzxpvrfqnumnb.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4bWZhbGV2enhwdnJmcW51bW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1MzgwODgsImV4cCI6MjA2MzExNDA4OH0.z2sdsBJg-IK3x55PQLXt-27P9N1KzE-vgswxaY6CdgY'
+    );
+
+    const quizForm = document.getElementById('quizForm');
+    const quizResults = document.getElementById('quizResults');
+
+    quizForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const selectedGenres = [
+        form.get('vibe'),
+        form.get('pace'),
+        form.get('setting')
+      ];
+
+      const finalGenre = selectedGenres[Math.floor(Math.random() * selectedGenres.length)];
+      const page = Math.floor(Math.random() * 10) + 1;
+
+      quizResults.innerHTML = '<p>Loading your recommendations...</p>';
+
+      fetch(`https://api.jikan.moe/v4/anime?genres=${finalGenre}&limit=4&page=${page}&order_by=start_date&sort=desc`)
+        .then(res => res.json())
+        .then(data => {
+          quizResults.innerHTML = data.data.map(anime => {
+            const cleanSynopsis = (anime.synopsis || 'No synopsis available.').replace(/["`]/g, "'");
+            return `
+              <div class="card-wrapper" data-aos="fade-up">
+                <div class="card">
+                  <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
+                  <h3>${anime.title}</h3>
+                  <p>${cleanSynopsis.slice(0, 100)}</p>
+                  <p>Score: ${anime.score || 'N/A'}</p>
+                  <button 
+                    onclick="saveAnimeFromCard(this)"
+                    data-title="${anime.title}"
+                    data-image="${anime.images.jpg.image_url}"
+                    data-synopsis="${cleanSynopsis}"
+                    data-score="${anime.score || 'N/A'}"
+                  >Save</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          setTimeout(() => AOS.refresh(), 100);
+        });
+    });
+
+    window.saveAnimeFromCard = async function (button) {
+      const title = button.dataset.title;
+      const image = button.dataset.image;
+      const synopsis = button.dataset.synopsis;
+      const score = button.dataset.score;
+
+      const { error } = await supabase.from('watchlist').insert([
+        { title, image, synopsis, score }
+      ]);
+
+      if (error) {
+        alert('❌ Failed to save to Supabase.');
+        console.error(error);
+      } else {
+        alert(`✅ "${title}" saved to your watchlist!`);
+      }
+    };
+  </script>
+
+<script type="module" src="script.js"></script>
+
+  <!-- AOS animation -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+
+  <footer class="site-footer">
+    <p>© maisietran</p>
+  </footer>
+</body>
+</html>
