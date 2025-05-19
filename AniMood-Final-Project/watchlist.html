@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Watchlist</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">AniMood</h1>
+  </header>
+
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="quiz.html">Mood Quiz</a>
+    <a href="search.html">Search</a>
+    <a href="watchlist.html">Watchlist</a>
+  </nav>
+
+  <main>
+    <h2>My Watchlist</h2>
+    <div id="watchlistContainer" class="watchlist-container"></div>
+  </main>
+
+
+
+  <!-- Back to top button -->
+  <button onclick="scrollToTop()" class="button">
+    <svg class="svgIcon" viewBox="0 0 384 512">
+      <path d="M169.4 164.7L25.4 308.7c-9.4 9.4-24.6 
+      9.4-33.9 0s-9.4-24.6 0-33.9l160-160c9.4-9.4 
+      24.6-9.4 33.9 0l160 160c9.4 9.4 9.4 24.6 
+      0 33.9s-24.6 9.4-33.9 0L214.6 164.7V456c0 
+      13.3-10.7 24-24 24s-24-10.7-24-24V164.7z"/>
+    </svg>
+  </button>
+
+  <script>
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+<script type="module" src="watchlist.js"></script>
+
+  <footer class="site-footer">
+    <p>© maisietran</p>
+  </footer>
+</body>
+</html>
